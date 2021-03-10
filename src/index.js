@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import Chat from "./components/Chat";
-import paginaInicial from "./components/paginaInicial";
+import Chat from "./components/Chat/Chat";
+import Home from "./components/Home/Home";
 import reportWebVitals from "./reportWebVitals";
+import store from "./redux/store";
 //import registerServiceWorker from "./registerServiceWorker";
 import {
   // BrowserRouter,
@@ -11,17 +12,13 @@ import {
   Route,
   BrowserRouter,
 } from "react-router-dom";
-import { createStore } from "redux";
-import allReducers from "./reducers";
 import { Provider } from "react-redux";
-
-const store = createStore(allReducers);
 
 ReactDOM.render(
   <BrowserRouter>
     <Switch>
       <Provider store={store}>
-        <Route path="/" exact={true} component={paginaInicial} />
+        <Route path="/" exact={true} component={Home} />
         <Route path={"/app"} component={Chat} />
       </Provider>
     </Switch>

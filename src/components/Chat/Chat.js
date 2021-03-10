@@ -3,31 +3,33 @@ import { io } from "socket.io-client";
 import React from "react";
 import { connect } from "react-redux";
 
-export const socket = io("http://localhost:3000/");
 
 class Chat extends React.Component {
   messagesElement;
-  inputUsernameElement;
   inputMessageElement;
+  _socket = io("http://localhost:3000/");
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
-    // this.handleSubmit = this.handleSubmit.bind(this);
-
-    // this.state = {
-    //   node: "ReactDOM.findDOMNode(this),",
-    // };
-    socket.on("receivedMessage", (message) => {
+    this._socket.on("receivedMessage", (message) => {
       this.renderMessage(message, this.messagesElement);
     });
 
-    socket.on("previousMessages", (messages) => {
+    this._socket.on("previousMessages", (messages) => {
       for (var message of messages) {
         this.renderMessage(message, this.messagesElement);
       }
     });
   }
+
+  componentWillUnmount() {
+    this._socket.close();
+  }
+
+  updateInput = inputValue => {
+    this.setState({ userNameForChat: inputValue });
+  };
 
   renderMessage(message, node) {
     if (node instanceof HTMLElement) {
@@ -42,7 +44,7 @@ class Chat extends React.Component {
 
   handleSubmit = (event) => {
     event.preventDefault();
-    var author = this.inputUsernameElement.value;
+    var author = this.props.user.nome;
     var message = this.inputMessageElement.value;
 
     if (author.length && message.length) {
@@ -53,7 +55,7 @@ class Chat extends React.Component {
 
       this.renderMessage(messageObject, this.messagesElement);
 
-      socket.emit("sendMessage", messageObject);
+      this._socket.emit("sendMessage", messageObject);
     }
   };
 
@@ -62,11 +64,9 @@ class Chat extends React.Component {
       <form id="chat">
         <input
           type="text"
-          disabled={true}
+          disabled
           name="username"
           value={this.props.user.nome}
-          ref={(c) => (this.inputUsernameElement = c)}
-          placeholder="digite seu usuário"
         />
         <div className="messages" ref={(c) => (this.messagesElement = c)}></div>
         <input
@@ -85,7 +85,7 @@ class Chat extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    user: state.user,
+    user: state.UserReducer.selectedUser,
   };
 }
 
